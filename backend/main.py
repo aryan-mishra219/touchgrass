@@ -76,32 +76,6 @@ def get_supabase_client() -> Optional[Client]:
 # Try initializing on module load
 get_supabase_client()
 
-import datetime
-
-def get_today_midnight_iso() -> str:
-    """Returns the ISO timestamp for 12:00:00 AM (midnight) of today in IST (UTC+5:30)."""
-    now_utc = datetime.datetime.now(datetime.timezone.utc)
-    ist_offset = datetime.timedelta(hours=5, minutes=30)
-    ist_now = now_utc + ist_offset
-    ist_midnight = ist_now.replace(hour=0, minute=0, second=0, microsecond=0)
-    utc_midnight = ist_midnight - ist_offset
-    return utc_midnight.isoformat()
-
-def cleanup_expired_moments() -> int:
-    """Purges moments older than 12:00 AM today from Supabase to prevent DB stress."""
-    client = get_supabase_client()
-    if not client:
-        return 0
-    try:
-        cutoff = get_today_midnight_iso()
-        res = client.table("joy_moments").delete().lt("created_at", cutoff).execute()
-        count = len(res.data) if res.data else 0
-        if count > 0:
-            print(f"[Supabase Daily Reset] Cleared {count} moments older than 12:00 AM ({cutoff})")
-        return count
-    except Exception as e:
-        print(f"[Supabase Daily Reset Warning]: {e}")
-        return 0
 
 
 # In-memory moments fallback cache (useful if Supabase is not yet connected)
@@ -255,32 +229,20 @@ def health_check():
         "supabase_configured": bool(client is not None),
     }
 
-@app.get("/api/cleanup-expired")
-@app.post("/api/cleanup-expired")
-def manual_cleanup():
-    """Manual or cron trigger to purge moments older than 12:00 AM today."""
-    cleared = cleanup_expired_moments()
-    return {"success": True, "cleared": cleared, "midnightCutoff": get_today_midnight_iso()}
-
 @app.get("/api/moments")
 def get_moments():
-    """Returns today's active moments (since 12:00 AM midnight) from Supabase."""
+    """Returns all moments from Supabase or memory fallback."""
     client = get_supabase_client()
-    cutoff = get_today_midnight_iso()
-    
-    # Auto-cleanup previous days' moments to keep database stress-free
-    cleanup_expired_moments()
-    
     if client:
         try:
-            res = client.table("joy_moments").select("*").gte("created_at", cutoff).order("created_at", desc=True).limit(100).execute()
+            res = client.table("joy_moments").select("*").order("created_at", desc=True).limit(100).execute()
             if res.data is not None:
                 return res.data
         except Exception as e:
             print(f"[Supabase Fetch Error]: {e}")
     
-    # In-memory fallback filtered for today
-    return [m for m in IN_MEMORY_MOMENTS if m.get("created_at") == "now" or m.get("created_at", "") >= cutoff]
+    return IN_MEMORY_MOMENTS
+
 
 @app.post("/api/save-moment")
 def save_moment(req: SaveMomentRequest):

@@ -135,31 +135,23 @@ export default function LiveRoomRadar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [audioUnlocked, soundEnabled]);
 
-  // Get 12:00 AM midnight ISO timestamp for today (local time)
-  const getTodayMidnightIso = () => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d.toISOString();
-  };
-
-  // Fetch initial moments for today
+  // Fetch initial moments (keep all moments)
   const fetchInitialMoments = async () => {
     let loaded = [];
-    const todayCutoff = getTodayMidnightIso();
 
     if (isSupabaseConfigured && supabase) {
       try {
         const { data } = await supabase
           .from("joy_moments")
           .select("*")
-          .gte("created_at", todayCutoff)
           .order("created_at", { ascending: false })
-          .limit(40);
+          .limit(100);
         if (data && data.length > 0) loaded = data;
       } catch (err) {
         console.warn("Supabase fetch failed in Live room:", err);
       }
     }
+
 
     if (loaded.length === 0) {
       try {

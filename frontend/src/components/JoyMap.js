@@ -67,28 +67,19 @@ export default function JoyMap() {
   const sfxAudioRef = useRef(null);
   const hasHandledUrlTargetRef = useRef(false);
 
-  // 1. Get 12:00 AM midnight ISO timestamp for today (local time)
-  const getTodayMidnightIso = () => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d.toISOString();
-  };
-
-  // Fetch moments from Supabase as single source of truth (today's active moments)
+  // Fetch all moments from Supabase as single source of truth (keep all pins)
   const fetchMoments = async () => {
     setLoading(true);
-    const todayCutoff = getTodayMidnightIso();
     let loaded = null;
 
-    // Single source of truth: fetch today's moments from Supabase
+    // Single source of truth: fetch all moments from Supabase
     if (isSupabaseConfigured && supabase) {
       try {
         const { data, error } = await supabase
           .from("joy_moments")
           .select("*")
-          .gte("created_at", todayCutoff)
           .order("created_at", { ascending: false })
-          .limit(100);
+          .limit(150);
 
         if (!error && Array.isArray(data)) {
           loaded = data;
@@ -133,20 +124,8 @@ export default function JoyMap() {
 
   useEffect(() => {
     fetchMoments();
-
-    // 12:00 AM Midnight Auto-Reset Timer: Refreshes active daily pins at midnight
-    let lastDay = new Date().getDate();
-    const interval = setInterval(() => {
-      const currentDay = new Date().getDate();
-      if (currentDay !== lastDay) {
-        console.log("[Joy Radar] Midnight 12:00 AM reached! Clearing previous days' pins.");
-        lastDay = currentDay;
-        fetchMoments();
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
   }, []);
+
 
   // 2. Realtime subscription via Supabase for instantaneous worldwide pin drops
   useEffect(() => {
