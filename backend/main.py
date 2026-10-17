@@ -112,6 +112,7 @@ class MomentRequest(BaseModel):
     voice_id: str
     latitude: Optional[float] = 28.6139
     longitude: Optional[float] = 77.2090
+    mode: Optional[str] = "touch-grass" # "snap" | "touch-grass"
 
 class SaveMomentRequest(BaseModel):
     caption: str
@@ -331,20 +332,22 @@ def process_moment(req: MomentRequest):
     client = Groq(api_key=groq_key)
 
     is_free_roam = (
-        req.quest_category == "any"
-        or "snap a moment" in req.quest_title.lower()
+        (getattr(req, "mode", None) and str(req.mode).lower() == "snap")
+        or req.quest_category == "any"
+        or "snap" in req.quest_title.lower()
         or "free roam" in req.quest_title.lower()
     )
 
     if is_free_roam:
         mode_instruction = f"""CURRENT MODE: SNAP A MOMENT (Spontaneous Real-World Snapshot)
-The user is freely snapping any moment from their day.
-1. Screen Anti-Cheat: If they took a photo of another screen (computer monitor, laptop, smartphone, TV screen) to fake reality, flag isCheat = true and roast them for looking at screens instead of the real world!
-2. If real photo (isCheat = false):
-   - Visually analyze what is actually in the photo (the objects, atmosphere, lighting, mood, action).
-   - Dynamically decide a fitting, witty, or poetic caption matching the image content and tone.
-   - Deliver a 2-3 sentence commentary in the character of "{req.persona_name}" following "{req.persona_style}", reacting directly to the image!
-   - Determine the most accurate joyCategory: "nature", "food", "people", or "small-wins"."""
+The user is freely snapping ANY spontaneous moment from their life (food, drinks, street scenes, friends, pets, sky, coffee, plants, architecture, everyday objects).
+CRITICAL RULES FOR SNAP MODE:
+1. NO TASK VERIFICATION: There is NO assigned task! Do NOT check this photo against any task, mission, or requirement to touch grass. Any real-world photo is 100% valid.
+2. NO CHEATING ERRORS: "isCheat" MUST BE STRICTLY FALSE. "cheatReason" MUST BE null. Do NOT flag this as cheated, wrong item, or fake under any circumstances.
+3. Content & Atmosphere Analysis: Visually examine what is actually in the photo (the objects, colors, atmosphere, lighting, mood, scene).
+4. Snappy Polaroid Title: Dynamically decide a fitting, witty, or poetic caption (maximum 8 words).
+5. Engaging Commentary: Deliver an entertaining 2-to-3 sentence commentary in the character of "{req.persona_name}" following "{req.persona_style}", reacting directly to what they photographed!
+6. Mood Categorization: Determine the most accurate joyCategory: "nature", "food", "people", or "small-wins"."""
     else:
         mode_instruction = f"""CURRENT MODE: TOUCH THE GRASS CHALLENGE
 Assigned Task: "{req.quest_title}"
@@ -369,7 +372,7 @@ Narrator Persona: "{req.persona_name}"
 Narrator Personality & Style: "{req.persona_style}"
 
 Output Fields in strict JSON format:
-- "isCheat": boolean (true if screen/fake, false if genuine real-world physical photo)
+- "isCheat": boolean (true if screen/fake in Touch Grass mode, false if genuine real-world physical photo or Snap mode)
 - "cheatReason": string or null (If isCheat is true, a witty 1-liner roast explaining how they got caught in 4K. If false, null)
 - "caption": string (A punchy, snappy Polaroid title matching the photo, maximum 8 words)
 - "narration": string (A 2-to-3 sentence script in the voice of "{req.persona_name}". If isCheat is true, roast them and urge them to do it for real. If isCheat is false, praise and appreciate them with good lines!)
@@ -381,7 +384,7 @@ Return ONLY valid JSON matching this schema:
   "isCheat": false,
   "cheatReason": null,
   "caption": "A Beautiful Real World Moment",
-  "narration": "Look at that! You actually stepped outside and touched real green grass...",
+  "narration": "Look at that! You stepped outside and captured this genuine real-world moment...",
   "joyCategory": "nature",
   "sfxPrompt": "birds chirping softly in sunny green garden"
 }}"""
@@ -437,11 +440,19 @@ Return ONLY valid JSON matching this schema:
             detail=f"Groq Vision analysis failed on all models. Details: {str(last_error)}"
         )
 
-    is_cheat = bool(vision_data.get("isCheat", False))
-    cheat_reason = vision_data.get("cheatReason") if is_cheat else None
+    # In Snap mode, never flag cheating or cheating errors
+    if is_free_roam:
+        is_cheat = False
+        cheat_reason = None
+        raw_cat = str(vision_data.get("joyCategory", "small-wins")).lower()
+        joy_category = "small-wins" if raw_cat == "cheater" else raw_cat
+    else:
+        is_cheat = bool(vision_data.get("isCheat", False))
+        cheat_reason = vision_data.get("cheatReason") if is_cheat else None
+        joy_category = "cheater" if is_cheat else vision_data.get("joyCategory", "small-wins")
+
     caption = vision_data.get("caption", "Joy Captured")
     narration = vision_data.get("narration", "A wonderful moment of offline joy.")
-    joy_category = "cheater" if is_cheat else vision_data.get("joyCategory", "small-wins")
     sfx_prompt = vision_data.get("sfxPrompt", "loud game show fail buzzer and sad horn" if is_cheat else "gentle ambient nature breeze")
 
     # Step B: ElevenLabs TTS + Sound Effects

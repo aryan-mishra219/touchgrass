@@ -63,6 +63,9 @@ export default function Home() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  // Safeguard: Snap A Moment mode is never treated as a cheat or checked against tasks
+  const isCheatDetected = Boolean(result?.isCheat && activeTab !== "snap" && submittedQuest?.category !== "any");
   const [userCoords, setUserCoords] = useState({ latitude: 28.6139, longitude: 77.2090 });
   const [hasRealGps, setHasRealGps] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -417,7 +420,8 @@ export default function Home() {
     setImagePreview(base64Image);
 
     // Pick quest definition based on the active tab mode
-    const currentQuest = activeTab === "snap"
+    const isSnapMode = activeTab === "snap";
+    const currentQuest = isSnapMode
       ? {
           title: "Snap A Moment",
           category: "any",
@@ -448,6 +452,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           image_base64: base64Image,
+          mode: isSnapMode ? "snap" : "touch-grass",
           quest_title: currentQuest.title,
           quest_category: currentQuest.category,
           persona_name: selectedPersona.name,
@@ -464,6 +469,16 @@ export default function Home() {
       }
 
       const data = await response.json();
+
+      // Guarantee Snap mode is never marked as a cheat or checked against a task
+      if (isSnapMode) {
+        data.isCheat = false;
+        data.cheatReason = null;
+        if (data.joyCategory === "cheater") {
+          data.joyCategory = "small-wins";
+        }
+      }
+
       setResult(data);
 
       // Cache newly uploaded moment into localStorage so JoyMap displays it with 100% certainty
@@ -980,74 +995,74 @@ export default function Home() {
             {/* The Physical Polaroid Frame */}
             <div
               className={`relative w-full max-w-sm sm:max-w-md bg-[#fdfbf7] text-zinc-900 rounded-md p-4 sm:p-5 border-4 border-zinc-900 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-transform duration-300 ${
-                result.isCheat ? "rotate-1" : "-rotate-1 hover:rotate-0"
+                (result.isCheat && activeTab !== "snap" && submittedQuest?.category !== "any") ? "rotate-1" : "-rotate-1 hover:rotate-0"
               }`}
             >
-              {/* Photo Area */}
-              <div className="relative w-full aspect-square bg-zinc-950 rounded-sm overflow-hidden border-2 border-zinc-800/60 shadow-inner">
-                {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt={result.caption}
-                    className="w-full h-full object-cover"
-                  />
-                )}
+                {/* Photo Area */}
+                <div className="relative w-full aspect-square bg-zinc-950 rounded-sm overflow-hidden border-2 border-zinc-800/60 shadow-inner">
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt={result.caption}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
 
-                {/* ANTI-CHEAT STAMP */}
-                {result.isCheat ? (
-                  <div className="absolute inset-0 flex items-center justify-center p-3 bg-red-950/60 backdrop-blur-[2px]">
-                    <div className="transform -rotate-12 bg-red-600 text-white font-black text-center text-xs sm:text-sm uppercase tracking-widest px-4 py-2 border-4 border-white shadow-[0_0_25px_rgba(220,38,38,0.95)] animate-bounce">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <ShieldAlert className="w-4 h-4 text-white" />
-                        <span>CAUGHT IN 4K: SCREEN DETECTED!</span>
-                      </div>
-                      <div className="text-[10px] font-mono tracking-normal normal-case mt-0.5 text-red-100 font-bold">
-                        Go outside and touch real grass!
+                  {/* ANTI-CHEAT STAMP */}
+                  {isCheatDetected ? (
+                    <div className="absolute inset-0 flex items-center justify-center p-3 bg-red-950/60 backdrop-blur-[2px]">
+                      <div className="transform -rotate-12 bg-red-600 text-white font-black text-center text-xs sm:text-sm uppercase tracking-widest px-4 py-2 border-4 border-white shadow-[0_0_25px_rgba(220,38,38,0.95)] animate-bounce">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <ShieldAlert className="w-4 h-4 text-white" />
+                          <span>CAUGHT IN 4K: SCREEN DETECTED!</span>
+                        </div>
+                        <div className="text-[10px] font-mono tracking-normal normal-case mt-0.5 text-red-100 font-bold">
+                          Go outside and touch real grass!
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="absolute top-3 left-3 bg-emerald-500 text-black font-extrabold text-[10px] sm:text-xs uppercase px-2.5 py-1 rounded-sm border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-black" />
-                    <span>
-                      {submittedQuest?.category === "any"
-                        ? "VERIFIED REAL SNAP"
-                        : `VERIFIED: ${submittedQuest?.title || "TASK COMPLETED"}`}
-                    </span>
-                  </div>
-                )}
+                  ) : (
+                    <div className="absolute top-3 left-3 bg-emerald-500 text-black font-extrabold text-[10px] sm:text-xs uppercase px-2.5 py-1 rounded-sm border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+                      <span>
+                        {submittedQuest?.category === "any" || activeTab === "snap"
+                          ? "VERIFIED REAL SNAP"
+                          : `VERIFIED: ${submittedQuest?.title || "TASK COMPLETED"}`}
+                      </span>
+                    </div>
+                  )}
 
-                {/* Category Pill */}
-                <div className="absolute bottom-3 right-3 bg-zinc-900/90 text-white font-mono text-[10px] uppercase px-2 py-0.5 rounded border border-zinc-700">
-                  #{result.joyCategory}
+                  {/* Category Pill */}
+                  <div className="absolute bottom-3 right-3 bg-zinc-900/90 text-white font-mono text-[10px] uppercase px-2 py-0.5 rounded border border-zinc-700">
+                    #{result.joyCategory}
+                  </div>
                 </div>
-              </div>
 
-              {/* Bottom White Area of Polaroid */}
-              <div className="pt-4 pb-2 px-1">
-                {/* Handwritten Style Caption */}
-                <h2 className="font-polaroid text-3xl sm:text-4xl text-zinc-950 font-bold leading-tight tracking-tight text-center">
-                  "{result.caption}"
-                </h2>
+                {/* Bottom White Area of Polaroid */}
+                <div className="pt-4 pb-2 px-1">
+                  {/* Handwritten Style Caption */}
+                  <h2 className="font-polaroid text-3xl sm:text-4xl text-zinc-950 font-bold leading-tight tracking-tight text-center">
+                    "{result.caption}"
+                  </h2>
 
-                {/* Cheat Roast or Real Joy Praise Notice */}
-                {result.isCheat && result.cheatReason ? (
-                  <div className="mt-2.5 p-2.5 bg-red-100 border-2 border-red-500 rounded-lg text-red-900 font-bold text-xs sm:text-sm text-center shadow-sm flex items-center justify-center gap-1.5">
-                    <Flame className="w-4 h-4 text-red-600 shrink-0" />
-                    <span>
-                      <strong>{selectedPersona.name}'s Roast:</strong> "{result.cheatReason}"
-                    </span>
-                  </div>
-                ) : (
-                  <div className="mt-2.5 p-2 bg-emerald-50 border-2 border-emerald-500 rounded-lg text-emerald-900 font-bold text-xs text-center shadow-sm flex items-center justify-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>
-                      {submittedQuest?.category === "any"
-                        ? "Authentic Real-World Moment Captured!"
-                        : `Task Completed: ${submittedQuest?.title || "Real Grass Touched"}!`}
-                    </span>
-                  </div>
-                )}
+                  {/* Cheat Roast or Real Joy Praise Notice */}
+                  {isCheatDetected && result.cheatReason ? (
+                    <div className="mt-2.5 p-2.5 bg-red-100 border-2 border-red-500 rounded-lg text-red-900 font-bold text-xs sm:text-sm text-center shadow-sm flex items-center justify-center gap-1.5">
+                      <Flame className="w-4 h-4 text-red-600 shrink-0" />
+                      <span>
+                        <strong>{selectedPersona.name}'s Roast:</strong> "{result.cheatReason}"
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mt-2.5 p-2 bg-emerald-50 border-2 border-emerald-500 rounded-lg text-emerald-900 font-bold text-xs text-center shadow-sm flex items-center justify-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>
+                        {submittedQuest?.category === "any" || activeTab === "snap"
+                          ? "Authentic Real-World Moment Captured!"
+                          : `Task Completed: ${submittedQuest?.title || "Real Grass Touched"}!`}
+                      </span>
+                    </div>
+                  )}
 
                 {/* Script / Narration Box */}
                 <div className="mt-4 p-3.5 bg-zinc-100 rounded-lg border-2 border-zinc-800 text-zinc-900 text-xs sm:text-sm leading-relaxed font-sans shadow-sm">
