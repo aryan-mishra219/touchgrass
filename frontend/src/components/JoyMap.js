@@ -416,7 +416,7 @@ export default function JoyMap() {
   return (
     <div className="relative w-full h-[calc(100vh-80px)] flex flex-col overflow-hidden bg-zinc-950">
       {/* Top Controls Bar */}
-      <div className="absolute top-4 left-4 right-4 z-[500] flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+      <div className="absolute top-4 left-4 right-4 z-500 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
         {/* Status Badge */}
         <div className="pointer-events-auto flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/90 backdrop-blur-md border-2 border-black text-xs font-mono font-bold shadow-[3px_3px_0px_0px_#000]">
           <span className="relative flex h-2.5 w-2.5">
@@ -496,11 +496,11 @@ export default function JoyMap() {
       </div>
 
       {/* Full-Screen Leaflet Map Canvas */}
-      <div ref={mapContainerRef} className="w-full h-full z-[1]" />
+      <div ref={mapContainerRef} className="w-full h-full z-1" />
 
       {/* TALKING POLAROID MODAL / DRAWER (Opens when a pin is clicked) */}
       {selectedMoment && (
-        <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-96 z-[1000] animate-in slide-in-from-bottom-5 duration-300">
+        <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-96 z-1000 animate-in slide-in-from-bottom-5 duration-300">
           <div className="relative bg-[#fdfbf7] text-zinc-900 rounded-xl p-4 sm:p-5 border-4 border-black shadow-[8px_8px_0px_0px_#000]">
             {/* Close Button */}
             <button

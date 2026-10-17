@@ -607,7 +607,7 @@ export default function Home() {
           </div>
           <div>
             <h1 className="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-1.5">
-              <span className="bg-gradient-to-r from-emerald-400 via-green-300 to-yellow-300 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-emerald-400 via-green-300 to-yellow-300 bg-clip-text text-transparent">
                 TouchGrass
               </span>
               <span className="text-zinc-500 font-mono text-xs hidden sm:inline">JOY RADAR</span>
@@ -700,7 +700,7 @@ export default function Home() {
             }}
             className={`py-3.5 px-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wide flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "touch-grass"
-                ? "bg-gradient-to-r from-emerald-400 to-green-400 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] scale-[1.01]"
+                ? "bg-linear-to-r from-emerald-400 to-green-400 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] scale-[1.01]"
                 : "bg-zinc-950/80 border-2 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
             }`}
           >
@@ -725,7 +725,7 @@ export default function Home() {
             }}
             className={`py-3.5 px-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wide flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "snap"
-                ? "bg-gradient-to-r from-yellow-400 to-amber-400 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] scale-[1.01]"
+                ? "bg-linear-to-r from-yellow-400 to-amber-400 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] scale-[1.01]"
                 : "bg-zinc-950/80 border-2 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
             }`}
           >
@@ -759,14 +759,15 @@ export default function Home() {
                     type="button"
                     onClick={fetchAiTask}
                     disabled={isGeneratingTask}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-zinc-950 border-2 border-black rounded-xl shadow-[2px_2px_0px_0px_#000] transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer disabled:opacity-60"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black bg-linear-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-zinc-950 border-2 border-black rounded-xl shadow-[2px_2px_0px_0px_#000] transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer disabled:opacity-60"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 stroke-[2.5] ${isGeneratingTask ? "animate-spin" : ""}`} />
                     <span>{isGeneratingTask ? "Generating..." : "Regenerate Task"}</span>
                   </button>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-zinc-950 to-zinc-950 border-2 border-emerald-500/50 shadow-inner flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="p-5 rounded-2xl bg-linear-to-br from-emerald-950/70 via-zinc-950 to-zinc-950 border-2 border-emerald-500/50 shadow-inner flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-emerald-950 rounded-2xl border-2 border-emerald-500/40 shrink-0 shadow-sm flex items-center justify-center">
                       {getCategoryIcon(aiTask?.category)}
@@ -814,7 +815,7 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-yellow-950/40 via-zinc-950 to-zinc-950 border-2 border-yellow-500/40 shadow-inner flex flex-col sm:flex-row items-start gap-4">
+                <div className="p-5 rounded-2xl bg-linear-to-br from-yellow-950/40 via-zinc-950 to-zinc-950 border-2 border-yellow-500/40 shadow-inner flex flex-col sm:flex-row items-start gap-4">
                   <div className="p-3.5 bg-yellow-950/80 rounded-2xl border-2 border-yellow-500/50 text-yellow-400 shrink-0 flex items-center justify-center shadow-sm">
                     <Camera className="w-7 h-7" />
                   </div>
@@ -946,7 +947,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => startCamera("environment")}
-                  className="w-full p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-green-400 hover:from-emerald-400 hover:to-green-300 text-zinc-950 font-black text-sm uppercase tracking-wide flex flex-col items-center justify-center gap-1.5 border-3 border-black shadow-[4px_4px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer group"
+                  className="w-full p-4 rounded-xl bg-linear-to-r from-emerald-500 to-green-400 hover:from-emerald-400 hover:to-green-300 text-zinc-950 font-black text-sm uppercase tracking-wide flex flex-col items-center justify-center gap-1.5 border-3 border-black shadow-[4px_4px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-2">
                     <Camera className="w-5 h-5 stroke-[2.5] group-hover:rotate-12 transition-transform" />
@@ -1153,7 +1154,7 @@ export default function Home() {
             </div>
 
             {/* Direct Map Drop Callout */}
-            <div className="w-full max-w-sm sm:max-w-md p-4 rounded-2xl bg-gradient-to-r from-emerald-950 via-zinc-900 to-emerald-950 border-3 border-black shadow-[6px_6px_0px_0px_#000] flex flex-col items-center gap-2.5 text-center">
+            <div className="w-full max-w-sm sm:max-w-md p-4 rounded-2xl bg-linear-to-r from-emerald-950 via-zinc-900 to-emerald-950 border-3 border-black shadow-[6px_6px_0px_0px_#000] flex flex-col items-center gap-2.5 text-center">
               <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs uppercase tracking-wider font-bold">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -1163,11 +1164,11 @@ export default function Home() {
               </div>
               <Link
                 href={`/map?lat=${result.latitude}&lng=${result.longitude}&id=${result.momentId || ''}`}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-400 to-green-400 hover:from-emerald-300 hover:to-green-300 text-black font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 border-2 border-black shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl bg-linear-to-r from-emerald-400 to-green-400 hover:from-emerald-300 hover:to-green-300 text-black font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 border-2 border-black shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
               >
                 <MapPin className="w-4 h-4 text-black" />
                 <span>View Your Pin Live on Map</span>
-                <ArrowRight className="w-4 h-4 stroke-[3]" />
+                <ArrowRight className="w-4 h-4 stroke-3" />
               </Link>
             </div>
 
@@ -1221,7 +1222,7 @@ export default function Home() {
 
       {/* MODAL: Hacktoberfest Open-Source Community Hook */}
       {showHacktoberfestModal && (
-        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-120 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
           <div className="relative bg-zinc-900 border-4 border-black rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-[12px_12px_0px_0px_#000] text-zinc-100 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowHacktoberfestModal(false)}
@@ -1304,7 +1305,7 @@ export default function Home() {
 
       {/* MODAL: In-Browser Live Camera Viewfinder */}
       {showCameraModal && (
-        <div className="fixed inset-0 z-[150] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-150 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
           <div className="relative bg-zinc-900 border-4 border-black rounded-3xl p-4 sm:p-6 max-w-md w-full shadow-[10px_10px_0px_0px_#000] text-zinc-100 flex flex-col items-center">
             {/* Header */}
             <div className="w-full flex items-center justify-between mb-3">

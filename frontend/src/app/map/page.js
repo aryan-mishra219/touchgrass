@@ -26,7 +26,7 @@ export default function MapPage() {
           </div>
           <div>
             <h1 className="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-1.5">
-              <span className="bg-gradient-to-r from-emerald-400 via-green-300 to-yellow-300 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-emerald-400 via-green-300 to-yellow-300 bg-clip-text text-transparent">
                 TouchGrass
               </span>
               <span className="text-zinc-500 font-mono text-xs">RADAR</span>
@@ -75,10 +75,10 @@ export default function MapPage() {
         <JoyMap />
 
         {/* Floating Quick Action: Touch Grass Button */}
-        <div className="absolute bottom-6 left-6 z-[600]">
+        <div className="absolute bottom-6 left-6 z-600">
           <Link
             href="/?tab=touch-grass"
-            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-400 to-green-400 hover:from-emerald-300 hover:to-green-300 text-black font-black text-xs sm:text-sm uppercase tracking-wide rounded-xl border-3 border-black shadow-[4px_4px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-3 bg-linear-to-r from-emerald-400 to-green-400 hover:from-emerald-300 hover:to-green-300 text-black font-black text-xs sm:text-sm uppercase tracking-wide rounded-xl border-3 border-black shadow-[4px_4px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
           >
             <Sprout className="w-4 h-4 stroke-[2.5]" />
             <span>Complete Touch Grass Task</span>

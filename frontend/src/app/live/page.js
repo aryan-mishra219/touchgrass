@@ -432,7 +432,7 @@ export default function LiveRoomRadar() {
     >
       {/* Autoplay Unlocker Banner if Audio Context Not Armed */}
       {!audioUnlocked && (
-        <div className="bg-yellow-400 text-black px-4 py-2 text-center text-xs sm:text-sm font-black flex items-center justify-center gap-2 cursor-pointer shadow-md animate-pulse sticky top-0 z-[60]">
+        <div className="bg-yellow-400 text-black px-4 py-2 text-center text-xs sm:text-sm font-black flex items-center justify-center gap-2 cursor-pointer shadow-md animate-pulse sticky top-0 z-60">
           <Volume1 className="w-4 h-4" />
           <span>CLICK ANYWHERE ON SCREEN TO ARM ROOM AUDIO & LIVE COMMENTARY</span>
         </div>
@@ -457,7 +457,7 @@ export default function LiveRoomRadar() {
             </div>
             <div>
               <h1 className="text-lg sm:text-2xl font-black tracking-wider text-white flex items-center gap-2">
-                <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-yellow-300 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-emerald-400 via-teal-300 to-yellow-300 bg-clip-text text-transparent">
                   JOY WAVE
                 </span>
                 <span className="text-zinc-500 font-mono text-[10px] sm:text-xs px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 hidden md:inline">
@@ -536,7 +536,7 @@ export default function LiveRoomRadar() {
           {/* Touch Grass & Map Nav Links */}
           <Link
             href="/?tab=touch-grass"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold hover:bg-emerald-500/30 transition-all cursor-pointer hidden md:flex"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold hover:bg-emerald-500/30 transition-all cursor-pointer"
             title="Complete Touch Grass Task"
           >
             <Sprout className="w-4 h-4" />
@@ -818,7 +818,7 @@ export default function LiveRoomRadar() {
           <button
             onClick={handleSummarizeRoom}
             disabled={summaryLoading}
-            className="px-8 py-5 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-300 to-orange-400 text-black font-black text-base sm:text-lg tracking-wide uppercase flex items-center gap-3 border-3 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-[3px_3px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 active:scale-98 transition-all cursor-pointer group disabled:opacity-75"
+            className="px-8 py-5 rounded-2xl bg-linear-to-r from-yellow-400 via-amber-300 to-orange-400 text-black font-black text-base sm:text-lg tracking-wide uppercase flex items-center gap-3 border-3 border-black shadow-[8px_8px_0px_0px_#000] hover:shadow-[3px_3px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 active:scale-98 transition-all cursor-pointer group disabled:opacity-75"
           >
             <PartyPopper className={`w-6 h-6 ${summaryLoading ? "animate-spin" : "group-hover:rotate-12 transition-transform"}`} />
             <span>
@@ -832,7 +832,7 @@ export default function LiveRoomRadar() {
 
       {/* MODAL: Large QR Code with Presenter Override URL Input */}
       {showQrModal && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-100 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
           <div className="relative bg-zinc-900 border-4 border-black rounded-3xl p-8 max-w-md w-full text-center shadow-[10px_10px_0px_0px_#000]">
             <button
               onClick={() => setShowQrModal(false)}
@@ -852,7 +852,7 @@ export default function LiveRoomRadar() {
               <QRCodeSVG value={qrUrl} size={220} level="M" />
             </div>
 
-            {/* Presenter URL Override Input */}
+            {/* Presenter Target URL Override Input */}
             <div className="mt-3 text-left">
               <label className="text-[11px] font-mono font-bold text-zinc-400 uppercase tracking-wider block mb-1">
                 Presenter Target URL (Live Tunnel / LAN IP):
@@ -874,7 +874,7 @@ export default function LiveRoomRadar() {
 
       {/* MODAL: AI Finale Room Mood Summary */}
       {roomSummary && (
-        <div className="fixed inset-0 z-[110] bg-black/85 backdrop-blur-lg flex items-center justify-center p-4 animate-in zoom-in-95">
+        <div className="fixed inset-0 z-110 bg-black/85 backdrop-blur-lg flex items-center justify-center p-4 animate-in zoom-in-95">
           <div className="relative bg-[#fdfbf7] text-zinc-950 border-4 border-black rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-[12px_12px_0px_0px_#000] text-center">
             <button
               onClick={() => setRoomSummary(null)}
