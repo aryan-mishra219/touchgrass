@@ -67,67 +67,54 @@ export default function JoyMap() {
   const sfxAudioRef = useRef(null);
   const hasHandledUrlTargetRef = useRef(false);
 
-  // 1. Fetch initial moments from Supabase, Backend, and local cache
+  // 1. Get 12:00 AM midnight ISO timestamp for today (local time)
+  const getTodayMidnightIso = () => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  };
+
+  // Fetch moments from Supabase as single source of truth (today's active moments)
   const fetchMoments = async () => {
     setLoading(true);
-    let loaded = [];
+    const todayCutoff = getTodayMidnightIso();
+    let loaded = null;
 
-    // Check localStorage first for any moment the user just snapped / uploaded
-    if (typeof window !== "undefined") {
-      try {
-        const cachedStr = localStorage.getItem("touchgrass_latest_moment");
-        if (cachedStr) {
-          const cached = JSON.parse(cachedStr);
-          if (cached && cached.latitude && cached.longitude) {
-            loaded.push(cached);
-          }
-        }
-      } catch (e) {
-        console.warn("Failed to read cached moment:", e);
-      }
-    }
-
+    // Single source of truth: fetch today's moments from Supabase
     if (isSupabaseConfigured && supabase) {
       try {
         const { data, error } = await supabase
           .from("joy_moments")
           .select("*")
+          .gte("created_at", todayCutoff)
           .order("created_at", { ascending: false })
           .limit(100);
 
-        if (!error && data && data.length > 0) {
-          const existingIds = new Set(loaded.map((m) => String(m.id)));
-          data.forEach((item) => {
-            if (!existingIds.has(String(item.id))) {
-              loaded.push(item);
-            }
-          });
+        if (!error && Array.isArray(data)) {
+          loaded = data;
         }
       } catch (err) {
-        console.warn("Supabase direct fetch failed, trying backend:", err);
+        console.warn("Supabase fetch notice in JoyMap:", err);
       }
     }
 
-    // Also fetch from backend to ensure in-memory moments are always merged
-    try {
-      const apiUrl = getApiBaseUrl();
-      const res = await fetch(`${apiUrl}/api/moments`);
-      if (res.ok) {
-        const backendMoments = await res.json();
-        if (Array.isArray(backendMoments)) {
-          const existingIds = new Set(loaded.map((m) => String(m.id)));
-          backendMoments.forEach((item) => {
-            if (!existingIds.has(String(item.id))) {
-              loaded.push(item);
-            }
-          });
+    // Fallback to backend /api/moments only if direct Supabase fetch was not available
+    if (loaded === null) {
+      try {
+        const apiUrl = getApiBaseUrl();
+        const res = await fetch(`${apiUrl}/api/moments`);
+        if (res.ok) {
+          const backendMoments = await res.json();
+          if (Array.isArray(backendMoments)) {
+            loaded = backendMoments;
+          }
         }
+      } catch (err) {
+        console.warn("Backend /api/moments fallback notice:", err);
       }
-    } catch (err) {
-      console.warn("Backend /api/moments fetch failed:", err);
     }
 
-    setMoments(loaded);
+    setMoments(loaded || []);
     setLoading(false);
   };
 
@@ -146,9 +133,22 @@ export default function JoyMap() {
 
   useEffect(() => {
     fetchMoments();
+
+    // 12:00 AM Midnight Auto-Reset Timer: Refreshes active daily pins at midnight
+    let lastDay = new Date().getDate();
+    const interval = setInterval(() => {
+      const currentDay = new Date().getDate();
+      if (currentDay !== lastDay) {
+        console.log("[Joy Radar] Midnight 12:00 AM reached! Clearing previous days' pins.");
+        lastDay = currentDay;
+        fetchMoments();
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  // 2. Realtime subscription via Supabase
+  // 2. Realtime subscription via Supabase for instantaneous worldwide pin drops
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) return;
 
@@ -158,10 +158,13 @@ export default function JoyMap() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "joy_moments" },
         (payload) => {
-          console.log("[Supabase Realtime] New pin arrived:", payload.new);
+          console.log("[Supabase Realtime] New pin arrived on JoyMap:", payload.new);
+          const newMoment = payload.new;
+          if (!newMoment || !newMoment.latitude || !newMoment.longitude) return;
+
           setMoments((prev) => {
-            if (prev.some((m) => String(m.id) === String(payload.new.id))) return prev;
-            return [payload.new, ...prev];
+            if (prev.some((m) => String(m.id) === String(newMoment.id))) return prev;
+            return [newMoment, ...prev];
           });
         }
       )
@@ -175,6 +178,7 @@ export default function JoyMap() {
       supabase.removeChannel(channel);
     };
   }, []);
+
 
   // 3. Initialize Leaflet Map
   useEffect(() => {
@@ -461,6 +465,7 @@ export default function JoyMap() {
             { id: "nature", label: "Nature" },
             { id: "food", label: "Food" },
             { id: "people", label: "People" },
+            { id: "small-wins", label: "Small Wins" },
             { id: "cheater", label: "Cheaters" },
           ].map((tab) => (
             <button
@@ -475,6 +480,21 @@ export default function JoyMap() {
               {tab.label}
             </button>
           ))}
+
+          <button
+            onClick={() => {
+              if (mapInstanceRef.current?.map && moments.length > 0) {
+                const { map, L } = mapInstanceRef.current;
+                const bounds = L.latLngBounds(moments.map((m) => [m.latitude, m.longitude]));
+                map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+              }
+            }}
+            title="Fit all pins on screen"
+            className="flex items-center gap-1 px-2 py-1 text-xs font-bold text-zinc-300 hover:text-white rounded-lg hover:bg-zinc-800 transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Compass className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">Fit All</span>
+          </button>
 
           <button
             onClick={fetchMoments}
@@ -493,6 +513,7 @@ export default function JoyMap() {
             {seeding ? "Seeding..." : "Seed Demo"}
           </button>
         </div>
+
       </div>
 
       {/* Full-Screen Leaflet Map Canvas */}

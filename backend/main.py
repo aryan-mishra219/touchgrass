@@ -7,11 +7,16 @@ from typing import Optional, List, Dict, Any
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from pathlib import Path
 from dotenv import load_dotenv
 from groq import Groq
 from supabase import create_client, Client
 
-load_dotenv()
+env_file = Path(__file__).parent / ".env"
+if env_file.exists():
+    load_dotenv(dotenv_path=env_file)
+else:
+    load_dotenv()
 
 app = FastAPI(title="TouchGrass: Joy Radar Backend")
 
@@ -24,10 +29,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+DEFAULT_SUPABASE_URL = "https://fkagbunnmkejdvhazovg.supabase.co"
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", os.getenv("SUPABASE_ANON_KEY", ""))
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", os.getenv("SUPABASE_KEY", os.getenv("SUPABASE_ANON_KEY", "")))
 
 # Initialize Supabase client
 supabase_client: Optional[Client] = None
@@ -38,9 +45,23 @@ def get_supabase_client() -> Optional[Client]:
         return supabase_client
     
     # Reload environment in case .env was updated
-    load_dotenv(override=True)
-    url = os.getenv("SUPABASE_URL", SUPABASE_URL)
-    key = os.getenv("SUPABASE_SERVICE_KEY", os.getenv("SUPABASE_ANON_KEY", SUPABASE_SERVICE_KEY))
+    if env_file.exists():
+        load_dotenv(dotenv_path=env_file, override=True)
+    else:
+        load_dotenv(override=True)
+
+    url = (
+        os.getenv("SUPABASE_URL") 
+        or os.getenv("NEXT_PUBLIC_SUPABASE_URL") 
+        or DEFAULT_SUPABASE_URL
+    )
+    key = (
+        os.getenv("SUPABASE_SERVICE_KEY") 
+        or os.getenv("SUPABASE_KEY") 
+        or os.getenv("SUPABASE_SERVICE_ROLE_KEY") 
+        or os.getenv("SUPABASE_ANON_KEY") 
+        or ""
+    )
     
     if url and key:
         try:
@@ -51,8 +72,37 @@ def get_supabase_client() -> Optional[Client]:
             print(f"[Supabase Warning] Failed to initialize Supabase client: {e}")
     return None
 
+
 # Try initializing on module load
 get_supabase_client()
+
+import datetime
+
+def get_today_midnight_iso() -> str:
+    """Returns the ISO timestamp for 12:00:00 AM (midnight) of today in IST (UTC+5:30)."""
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    ist_offset = datetime.timedelta(hours=5, minutes=30)
+    ist_now = now_utc + ist_offset
+    ist_midnight = ist_now.replace(hour=0, minute=0, second=0, microsecond=0)
+    utc_midnight = ist_midnight - ist_offset
+    return utc_midnight.isoformat()
+
+def cleanup_expired_moments() -> int:
+    """Purges moments older than 12:00 AM today from Supabase to prevent DB stress."""
+    client = get_supabase_client()
+    if not client:
+        return 0
+    try:
+        cutoff = get_today_midnight_iso()
+        res = client.table("joy_moments").delete().lt("created_at", cutoff).execute()
+        count = len(res.data) if res.data else 0
+        if count > 0:
+            print(f"[Supabase Daily Reset] Cleared {count} moments older than 12:00 AM ({cutoff})")
+        return count
+    except Exception as e:
+        print(f"[Supabase Daily Reset Warning]: {e}")
+        return 0
+
 
 # In-memory moments fallback cache (useful if Supabase is not yet connected)
 IN_MEMORY_MOMENTS: List[Dict[str, Any]] = [
@@ -142,7 +192,7 @@ def generate_speech(narration: str, voice_id: str) -> Optional[str]:
 
     for vid in voices_to_try:
         try:
-            url = f"https://api.elevenlabs.io/v1/text-to-speech/{vid}"
+            url = f"https://api.elevenlabs.io/v1/text-to-speech/{vid}?output_format=mp3_22050_32"
             headers = {
                 "xi-api-key": eleven_key,
                 "Content-Type": "application/json"
@@ -180,7 +230,7 @@ def generate_sfx(sfx_prompt: str) -> Optional[str]:
         }
         payload = {
             "text": sfx_prompt,
-            "duration_seconds": 4.0,
+            "duration_seconds": 3.0,
             "prompt_influence": 0.4
         }
         response = requests.post(url, json=payload, headers=headers, timeout=20)
@@ -205,19 +255,32 @@ def health_check():
         "supabase_configured": bool(client is not None),
     }
 
+@app.get("/api/cleanup-expired")
+@app.post("/api/cleanup-expired")
+def manual_cleanup():
+    """Manual or cron trigger to purge moments older than 12:00 AM today."""
+    cleared = cleanup_expired_moments()
+    return {"success": True, "cleared": cleared, "midnightCutoff": get_today_midnight_iso()}
+
 @app.get("/api/moments")
 def get_moments():
-    """Returns all moments from Supabase or memory fallback."""
+    """Returns today's active moments (since 12:00 AM midnight) from Supabase."""
     client = get_supabase_client()
+    cutoff = get_today_midnight_iso()
+    
+    # Auto-cleanup previous days' moments to keep database stress-free
+    cleanup_expired_moments()
+    
     if client:
         try:
-            res = client.table("joy_moments").select("*").order("created_at", desc=True).limit(100).execute()
+            res = client.table("joy_moments").select("*").gte("created_at", cutoff).order("created_at", desc=True).limit(100).execute()
             if res.data is not None:
                 return res.data
         except Exception as e:
             print(f"[Supabase Fetch Error]: {e}")
     
-    return IN_MEMORY_MOMENTS
+    # In-memory fallback filtered for today
+    return [m for m in IN_MEMORY_MOMENTS if m.get("created_at") == "now" or m.get("created_at", "") >= cutoff]
 
 @app.post("/api/save-moment")
 def save_moment(req: SaveMomentRequest):

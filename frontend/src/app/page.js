@@ -39,6 +39,7 @@ import {
 import questsData from "../data/quests.json";
 import personasData from "../data/personas.json";
 import { getApiBaseUrl } from "../lib/api";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 // Custom Crisp GitHub SVG Logo
 const Github = ({ className = "w-4 h-4" }) => (
@@ -286,7 +287,7 @@ export default function Home() {
     }
   };
 
-  // Client-side image compression: max 800px, JPEG 0.7
+  // Client-side image compression: max 600px, JPEG 0.65 (ultra-compact for fast uploads and realtime broadcast)
   const compressImage = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -296,7 +297,7 @@ export default function Home() {
           const canvas = document.createElement("canvas");
           let width = img.width;
           let height = img.height;
-          const maxDim = 800;
+          const maxDim = 600;
 
           if (width > height) {
             if (width > maxDim) {
@@ -315,7 +316,7 @@ export default function Home() {
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.7);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.65);
           resolve(compressedDataUrl);
         };
         img.onerror = reject;
@@ -391,15 +392,29 @@ export default function Home() {
     try {
       const video = videoRef.current;
       const canvas = document.createElement("canvas");
-      const width = video.videoWidth || 640;
-      const height = video.videoHeight || 480;
+      let width = video.videoWidth || 640;
+      let height = video.videoHeight || 480;
+      const maxDim = 600;
+
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
       canvas.width = width;
       canvas.height = height;
 
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0, width, height);
 
-      const capturedBase64 = canvas.toDataURL("image/jpeg", 0.75);
+      const capturedBase64 = canvas.toDataURL("image/jpeg", 0.65);
 
       // Cleanly shutdown camera stream and close viewfinder
       stopCamera();
@@ -479,12 +494,43 @@ export default function Home() {
         }
       }
 
+      // DUAL-SYNC GUARANTEE: Ensure saved to Supabase so ALL devices see it immediately
+      let finalMomentId = data.momentId;
+      if (!data.savedToSupabase && isSupabaseConfigured && supabase) {
+        try {
+          const directRow = {
+            caption: data.caption,
+            narration: data.narration,
+            image_url: base64Image,
+            joy_category: data.joyCategory,
+            persona_name: selectedPersona.name,
+            is_cheat: data.isCheat,
+            cheat_reason: data.cheatReason,
+            latitude: lat,
+            longitude: lng,
+            speech_audio_url: data.speechAudioUrl,
+            sfx_audio_url: data.sfxAudioUrl,
+          };
+          const { data: inserted, error: insErr } = await supabase
+            .from("joy_moments")
+            .insert(directRow)
+            .select("id");
+          if (!insErr && inserted && inserted.length > 0) {
+            finalMomentId = inserted[0].id;
+            console.log("[Supabase Dual-Sync] Saved moment directly to Supabase:", finalMomentId);
+          }
+        } catch (dbErr) {
+          console.warn("[Supabase Dual-Sync Notice]:", dbErr);
+        }
+      }
+
+      data.momentId = finalMomentId;
       setResult(data);
 
-      // Cache newly uploaded moment into localStorage so JoyMap displays it with 100% certainty
+      // Cache newly uploaded moment into localStorage so JoyMap displays it immediately
       try {
         const momentToCache = {
-          id: data.momentId || `local-${Date.now()}`,
+          id: finalMomentId || `local-${Date.now()}`,
           caption: data.caption,
           narration: data.narration,
           image_url: base64Image,
