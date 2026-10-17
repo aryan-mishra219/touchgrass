@@ -38,15 +38,15 @@ export default function MapPage() {
         <nav className="flex items-center gap-2">
           <Link
             href="/?tab=touch-grass"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-black bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border-2 border-emerald-500/40 rounded-xl transition-all cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold bg-zinc-800/90 hover:bg-zinc-700 text-zinc-100 border-2 border-zinc-700 rounded-xl transition-all cursor-pointer shadow-sm"
           >
             <Sprout className="w-4 h-4 text-emerald-400" />
-            <span className="font-bold">Touch Grass</span>
+            <span className="hidden sm:inline">Touch Grass</span>
           </Link>
 
           <Link
             href="/?tab=snap"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold bg-zinc-800/90 hover:bg-zinc-700 text-zinc-100 border-2 border-zinc-700 rounded-xl transition-all cursor-pointer shadow-sm"
           >
             <Camera className="w-4 h-4 text-yellow-400" />
             <span className="hidden sm:inline">Snap Moment</span>
@@ -62,7 +62,7 @@ export default function MapPage() {
 
           <Link
             href="/live"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold bg-zinc-800/90 hover:bg-zinc-700 text-zinc-100 border-2 border-zinc-700 rounded-xl transition-all cursor-pointer shadow-sm"
           >
             <Waves className="w-4 h-4 text-cyan-400" />
             <span className="hidden sm:inline">Live Screen</span>

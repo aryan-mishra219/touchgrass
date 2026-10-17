@@ -576,13 +576,13 @@ export default function Home() {
               setActiveTab("touch-grass");
               resetAll();
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-black rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] cursor-pointer transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-black rounded-xl border-2 transition-all cursor-pointer ${
               activeTab === "touch-grass"
-                ? "bg-emerald-400 text-black"
-                : "bg-zinc-800 text-zinc-300 hover:text-white"
+                ? "bg-emerald-400 text-black border-black shadow-[2px_2px_0px_0px_#000]"
+                : "bg-zinc-800/90 hover:bg-zinc-700 text-zinc-200 border-zinc-700 shadow-sm"
             }`}
           >
-            <Sprout className="w-4 h-4 text-emerald-950" />
+            <Sprout className={`w-4 h-4 ${activeTab === "touch-grass" ? "text-black" : "text-emerald-400"}`} />
             <span className="hidden sm:inline">Touch Grass</span>
           </button>
 
@@ -591,19 +591,19 @@ export default function Home() {
               setActiveTab("snap");
               resetAll();
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-black rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] cursor-pointer transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-black rounded-xl border-2 transition-all cursor-pointer ${
               activeTab === "snap"
-                ? "bg-yellow-400 text-black"
-                : "bg-zinc-800 text-zinc-300 hover:text-white"
+                ? "bg-yellow-400 text-black border-black shadow-[2px_2px_0px_0px_#000]"
+                : "bg-zinc-800/90 hover:bg-zinc-700 text-zinc-200 border-zinc-700 shadow-sm"
             }`}
           >
-            <Camera className="w-4 h-4 text-yellow-950" />
+            <Camera className={`w-4 h-4 ${activeTab === "snap" ? "text-black" : "text-yellow-400"}`} />
             <span className="hidden sm:inline">Snap Moment</span>
           </button>
 
           <Link
             href="/map"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold text-zinc-200 hover:text-white rounded-xl bg-zinc-800/90 hover:bg-zinc-700 border-2 border-zinc-700 shadow-sm transition-all cursor-pointer"
           >
             <MapPin className="w-4 h-4 text-emerald-400" />
             <span className="hidden sm:inline">Live Joy Map</span>
@@ -611,7 +611,7 @@ export default function Home() {
 
           <Link
             href="/live"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold text-zinc-200 hover:text-white rounded-xl bg-zinc-800/90 hover:bg-zinc-700 border-2 border-zinc-700 shadow-sm transition-all cursor-pointer"
           >
             <Waves className="w-4 h-4 text-cyan-400" />
             <span className="hidden sm:inline">Live Screen</span>
@@ -619,7 +619,7 @@ export default function Home() {
 
           <button
             onClick={() => setShowHacktoberfestModal(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono font-bold bg-orange-950/80 hover:bg-orange-900 text-orange-400 border border-orange-500/50 rounded-xl transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono font-bold bg-orange-950/80 hover:bg-orange-900 text-orange-400 border border-orange-500/50 rounded-xl transition-all cursor-pointer shadow-sm"
           >
             <Github className="w-4 h-4 text-orange-400" />
             <span className="hidden md:inline">Open Source</span>
@@ -655,11 +655,13 @@ export default function Home() {
             className={`py-3.5 px-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wide flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "touch-grass"
                 ? "bg-gradient-to-r from-emerald-400 to-green-400 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] scale-[1.01]"
-                : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                : "bg-zinc-950/80 border-2 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
             }`}
           >
-            <div className="w-7 h-7 rounded-lg bg-black/10 flex items-center justify-center shrink-0">
-              <Sprout className="w-4 h-4 text-emerald-950" />
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+              activeTab === "touch-grass" ? "bg-black/10 text-black" : "bg-zinc-900 text-emerald-400 border border-zinc-700"
+            }`}>
+              <Sprout className="w-4 h-4" />
             </div>
             <div className="text-center sm:text-left leading-tight">
               <div>Touch The Grass</div>
@@ -678,11 +680,13 @@ export default function Home() {
             className={`py-3.5 px-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wide flex flex-col sm:flex-row items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "snap"
                 ? "bg-gradient-to-r from-yellow-400 to-amber-400 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] scale-[1.01]"
-                : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                : "bg-zinc-950/80 border-2 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
             }`}
           >
-            <div className="w-7 h-7 rounded-lg bg-black/10 flex items-center justify-center shrink-0">
-              <Camera className="w-4 h-4 text-yellow-950" />
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+              activeTab === "snap" ? "bg-black/10 text-black" : "bg-zinc-900 text-yellow-400 border border-zinc-700"
+            }`}>
+              <Camera className="w-4 h-4" />
             </div>
             <div className="text-center sm:text-left leading-tight">
               <div>Snap A Moment</div>

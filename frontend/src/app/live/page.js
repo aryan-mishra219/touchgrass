@@ -543,18 +543,20 @@ export default function LiveRoomRadar() {
 
           <Link
             href="/map"
-            className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border-2 border-zinc-800 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-zinc-200 border-2 border-zinc-700 shadow-sm transition-all cursor-pointer"
             title="View Leaflet Map"
           >
-            <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+            <MapPin className="w-4 h-4 text-emerald-400" />
+            <span className="hidden sm:inline text-xs font-bold">Joy Map</span>
           </Link>
 
           <Link
             href="/?tab=snap"
-            className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border-2 border-zinc-800 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-zinc-200 border-2 border-zinc-700 shadow-sm transition-all cursor-pointer"
             title="Snap a Moment"
           >
-            <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+            <Camera className="w-4 h-4 text-yellow-400" />
+            <span className="hidden sm:inline text-xs font-bold">Snap Moment</span>
           </Link>
         </div>
       </header>
@@ -562,96 +564,72 @@ export default function LiveRoomRadar() {
       {/* Main Big-Screen Stage */}
       <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-8 flex flex-col gap-8">
         
-        {/* TOP SECTION: Spotlight + QR Code Strip */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-          {/* LEFT 2 COLS: SPOTLIGHT ON LATEST MOMENT */}
-          <div className="lg:col-span-2 relative bg-zinc-900/90 border-3 border-zinc-700 rounded-3xl p-6 sm:p-8 shadow-2xl brutal-shadow flex flex-col md:flex-row gap-6 items-center overflow-hidden">
-            <div className="absolute top-3 left-4 flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+        {/* TOP SECTION: Spotlight On Latest Moment */}
+        <div className="w-full relative bg-zinc-900/90 border-3 border-zinc-700 rounded-3xl p-6 sm:p-8 shadow-2xl brutal-shadow flex flex-col md:flex-row gap-6 items-center overflow-hidden">
+          <div className="absolute top-3 left-4 flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            Latest Spotter Drop
+            {isSpeaking && (
+              <span className="ml-2 text-yellow-400 animate-pulse font-bold flex items-center gap-1">
+                <Radio className="w-3 h-3 text-yellow-400" />
+                Live Speech Narration Active...
               </span>
-              Latest Spotter Drop
-              {isSpeaking && (
-                <span className="ml-2 text-yellow-400 animate-pulse font-bold flex items-center gap-1">
-                  <Radio className="w-3 h-3 text-yellow-400" />
-                  Live Speech Narration Active...
-                </span>
-              )}
-            </div>
-
-            {latestMoment ? (
-              <>
-                {/* Photo Frame */}
-                <div className="relative w-56 h-56 sm:w-64 sm:h-64 shrink-0 rounded-2xl overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_#000] bg-zinc-950 mt-4 md:mt-0">
-                  <img
-                    src={latestMoment.image_url}
-                    alt={latestMoment.caption}
-                    className="w-full h-full object-cover"
-                  />
-                  {latestMoment.is_cheat ? (
-                    <div className="absolute inset-0 flex items-center justify-center p-2 bg-red-950/60">
-                      <span className="transform -rotate-12 bg-red-600 text-white font-black text-xs uppercase px-3 py-1 border-2 border-white shadow-lg animate-bounce">
-                        SCREEN DETECTED
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="absolute top-2 left-2 bg-emerald-500 text-black font-extrabold text-[10px] uppercase px-2 py-0.5 rounded border border-black shadow-[2px_2px_0px_0px_#000]">
-                      VERIFIED JOY
-                    </div>
-                  )}
-                  <div className="absolute bottom-2 right-2 bg-zinc-900/90 text-white font-mono text-[10px] uppercase px-2 py-0.5 rounded border border-zinc-700">
-                    #{latestMoment.joy_category}
-                  </div>
-                </div>
-
-                {/* Details */}
-                <div className="flex-1 flex flex-col justify-center text-center md:text-left">
-                  <h2 className="font-polaroid text-3xl sm:text-5xl font-bold text-white tracking-tight leading-tight">
-                    "{latestMoment.caption}"
-                  </h2>
-
-                  {latestMoment.is_cheat && latestMoment.cheat_reason && (
-                    <p className="mt-2 text-xs sm:text-sm font-bold text-red-400 bg-red-950/60 border border-red-500/50 rounded-lg p-2">
-                      Notice: {latestMoment.cheat_reason}
-                    </p>
-                  )}
-
-                  <div className="mt-4 p-4 rounded-xl bg-zinc-950/70 border border-zinc-800 text-zinc-300 text-sm leading-relaxed">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-yellow-400 mb-1">
-                      Narrated by {latestMoment.persona_name}
-                    </div>
-                    <p className="italic">"{latestMoment.narration}"</p>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="w-full py-16 text-center text-zinc-500 font-mono">
-                Waiting for the first joy moment to land... (Or press S to simulate)
-              </div>
             )}
           </div>
 
-          {/* RIGHT 1 COL: AUDIENCE SCAN QR WIDGET */}
-          <div className="bg-gradient-to-br from-emerald-950/60 to-zinc-900 border-3 border-emerald-500/40 rounded-3xl p-6 shadow-2xl brutal-shadow flex flex-col items-center justify-center text-center">
-            <span className="text-xs font-mono font-bold uppercase text-emerald-400 tracking-widest mb-2">
-              AUDIENCE JOY RADAR
-            </span>
-            <h3 className="text-xl font-black text-white leading-tight mb-3">
-              Scan To Join The Wave!
-            </h3>
+          {latestMoment ? (
+            <>
+              {/* Photo Frame */}
+              <div className="relative w-56 h-56 sm:w-64 sm:h-64 shrink-0 rounded-2xl overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_#000] bg-zinc-950 mt-4 md:mt-0">
+                <img
+                  src={latestMoment.image_url}
+                  alt={latestMoment.caption}
+                  className="w-full h-full object-cover"
+                />
+                {latestMoment.is_cheat ? (
+                  <div className="absolute inset-0 flex items-center justify-center p-2 bg-red-950/60">
+                    <span className="transform -rotate-12 bg-red-600 text-white font-black text-xs uppercase px-3 py-1 border-2 border-white shadow-lg animate-bounce">
+                      SCREEN DETECTED
+                    </span>
+                  </div>
+                ) : (
+                  <div className="absolute top-2 left-2 bg-emerald-500 text-black font-extrabold text-[10px] uppercase px-2 py-0.5 rounded border border-black shadow-[2px_2px_0px_0px_#000]">
+                    VERIFIED JOY
+                  </div>
+                )}
+                <div className="absolute bottom-2 right-2 bg-zinc-900/90 text-white font-mono text-[10px] uppercase px-2 py-0.5 rounded border border-zinc-700">
+                  #{latestMoment.joy_category}
+                </div>
+              </div>
 
-            <div 
-              onClick={() => setShowQrModal(true)} 
-              className="p-3 bg-white rounded-2xl border-4 border-black shadow-[5px_5px_0px_0px_#000] mb-3 cursor-pointer hover:scale-105 transition-transform"
-            >
-              <QRCodeSVG value={qrUrl} size={150} level="M" />
+              {/* Details */}
+              <div className="flex-1 flex flex-col justify-center text-center md:text-left">
+                <h2 className="font-polaroid text-3xl sm:text-5xl font-bold text-white tracking-tight leading-tight">
+                  "{latestMoment.caption}"
+                </h2>
+
+                {latestMoment.is_cheat && latestMoment.cheat_reason && (
+                  <p className="mt-2 text-xs sm:text-sm font-bold text-red-400 bg-red-950/60 border border-red-500/50 rounded-lg p-2">
+                    Notice: {latestMoment.cheat_reason}
+                  </p>
+                )}
+
+                <div className="mt-4 p-4 rounded-xl bg-zinc-950/70 border border-zinc-800 text-zinc-300 text-sm leading-relaxed">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-yellow-400 mb-1">
+                    Narrated by {latestMoment.persona_name}
+                  </div>
+                  <p className="italic">"{latestMoment.narration}"</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="w-full py-16 text-center text-zinc-500 font-mono">
+              Waiting for the first joy moment to land... (Or press S to simulate)
             </div>
-
-            <p className="text-[11px] text-zinc-400 max-w-xs font-mono truncate">
-              {qrUrl}
-            </p>
-          </div>
+          )}
         </div>
 
         {/* --- MOOD OF THE DAY & ACCURATE UPLOAD ANALYSIS DASHBOARD --- */}
