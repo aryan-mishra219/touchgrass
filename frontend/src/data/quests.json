@@ -1,0 +1,65 @@
+[
+  {
+    "id": "touch-the-grass",
+    "title": "Touch Real Green Grass",
+    "description": "Step outside, find real lawn or park grass, and physically touch it",
+    "category": "nature",
+    "icon": "Sprout"
+  },
+  {
+    "id": "touch-tree-bark",
+    "title": "Tree Hugger Quest",
+    "description": "Walk up to a real tree and feel the rugged texture of its bark",
+    "category": "nature",
+    "icon": "Trees"
+  },
+  {
+    "id": "look-up-sky",
+    "title": "Look Up At The Sky",
+    "description": "Snap the open sky, clouds, or sunlight filtering through leaves",
+    "category": "nature",
+    "icon": "Sun"
+  },
+  {
+    "id": "wild-flower",
+    "title": "Wildflower Hunter",
+    "description": "Spot a real blooming flower, rose, or roadside blossom",
+    "category": "nature",
+    "icon": "Flower2"
+  },
+  {
+    "id": "tapri-chai",
+    "title": "The Tapri Chai Quest",
+    "description": "Find a steaming cup of tea, coffee, or street snack outdoors",
+    "category": "food",
+    "icon": "Coffee"
+  },
+  {
+    "id": "real-creature",
+    "title": "Real Wildlife Spotted",
+    "description": "Spot a stray dog, cat, sparrow, or squirrel in the physical world",
+    "category": "nature",
+    "icon": "Eye"
+  },
+  {
+    "id": "puddle-stone",
+    "title": "Water & Earth",
+    "description": "Touch a smooth pebble, fountain water, or dew on a fresh leaf",
+    "category": "nature",
+    "icon": "Droplets"
+  },
+  {
+    "id": "human-vibe",
+    "title": "Real Human Connection",
+    "description": "Snap a friend smiling or a high-five in the real world",
+    "category": "people",
+    "icon": "Users"
+  },
+  {
+    "id": "free-roam",
+    "title": "Free Roam Touch Grass",
+    "description": "Snap any authentic offline moment. Groq Vision will inspect and categorize it",
+    "category": "any",
+    "icon": "Compass"
+  }
+]

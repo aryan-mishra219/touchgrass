@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Space+Grotesk:wght@500;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #090a0f;
+  --foreground: #f4f4f5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-polaroid: 'Caveat', cursive;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+.font-polaroid {
+  font-family: 'Caveat', cursive, sans-serif;
+}
+
+/* Neo-brutalist shadow utility */
+.brutal-shadow {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.brutal-shadow-green {
+  box-shadow: 4px 4px 0px 0px #22c55e;
+}
+
+.brutal-shadow-yellow {
+  box-shadow: 4px 4px 0px 0px #eab308;
+}
+
+.brutal-shadow-lg {
+  box-shadow: 8px 8px 0px 0px #000000;
+}
+
+/* ============================================================
+   Dark Radar Map Theme (100% Free, No API Key Required)
+   Inverts and grades OpenStreetMap into a sleek dark cyber map
+   ============================================================ */
+.leaflet-container {
+  background: #090a0f !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
+.dark-radar-tiles {
+  filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(115%) saturate(70%) !important;
+}
+
+/* Leaflet attribution styling */
+.leaflet-control-attribution {
+  background: rgba(9, 10, 15, 0.85) !important;
+  color: #71717a !important;
+  font-size: 10px !important;
+  border-top-left-radius: 6px;
+  padding: 2px 6px !important;
+}
+
+.leaflet-control-attribution a {
+  color: #22c55e !important;
+}
+
+/* Zoom controls neo-brutal styling */
+.leaflet-bar {
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a {
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
+  border-bottom: 1px solid #27272a !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #27272a !important;
+  color: #22c55e !important;
+}
